@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محل شمر - مراقبة اسطوانات الغاز</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #07080B;
+            --bg-secondary: #111319;
+            --card-bg: rgba(24, 27, 36, 0.72);
+            --card-border: rgba(212, 175, 55, 0.22);
+            --gold-primary: #D4AF37;
+            --gold-light: #F3E5AB;
+            --gold-dark: #AA8220;
+            --gold-gradient: linear-gradient(135deg, #F6E27A 0%, #D4AF37 50%, #9E7B1C 100%);
+            --text-primary: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --green-ios: #30D158;
+            --green-bg: rgba(48, 209, 88, 0.14);
+            --red-ios: #FF453A;
+            --red-bg: rgba(255, 69, 58, 0.14);
+            --orange-ios: #FF9F0A;
+            --blue-ios: #0A84FF;
+            --glass-blur: blur(22px);
+            --squircle-radius: 22px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(212, 175, 55, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(212, 175, 55, 0.08) 0%, transparent 45%);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 110px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* شريط التحكم العلوي للمدير (مخفي افتراضياً) */
+        .admin-top-bar {
+            display: none;
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), rgba(24, 27, 36, 0.95));
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 10px 16px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .admin-top-bar.active {
+            display: flex;
+        }
+
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gold-light);
+        }
+
+        .admin-badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green-ios);
+            box-shadow: 0 0 8px var(--green-ios);
+        }
+
+        .admin-bar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-admin-small {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        .btn-admin-small:active {
+            transform: scale(0.94);
+        }
+
+        .btn-change-pin {
+            background: rgba(212, 175, 55, 0.22);
+            color: var(--gold-light);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+        }
+
+        .btn-exit-admin {
+            background: rgba(255, 69, 58, 0.22);
+            color: #FF8A80;
+            border: 1px solid rgba(255, 69, 58, 0.45);
+        }
+
+        /* الهيدر الفاخر */
+        header {
+            padding: 24px 20px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* أيقونة التطبيق بتصميم iOS Squircle مع لمعة زجاجية */
+        .ios-app-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #1E212B 0%, #0D0F14 100%);
+            border: 1.5px solid rgba(212, 175, 55, 0.55);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.65),
+                inset 0 1px 1px rgba(255, 255, 255, 0.25),
+                0 0 18px rgba(212, 175, 55, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .ios-app-logo:active {
+            transform: scale(0.9);
+        }
+
+        .ios-app-logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.18) 0%,
+                rgba(255, 255, 255, 0.04) 40%,
+                transparent 50%
+            );
+            pointer-events: none;
+        }
+
+        .ios-app-logo svg {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 2px 6px rgba(212, 175, 55, 0.45));
+        }
+
+        .brand-titles h1 {
+            font-size: 22px;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+            line-height: 1.25;
+        }
+
+        .brand-titles p {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* بطاقات الإحصائيات بنمط iOS Widgets */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 0 20px 18px;
+        }
+
+        .stat-widget {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-widget.gold-accent {
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .stat-icon-squircle {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+        }
+
+        .stat-icon-total {
+            background: linear-gradient(135deg, #D4AF37, #8C6D14);
+            color: #000;
+        }
+
+        .stat-icon-full {
+            background: linear-gradient(135deg, #30D158, #198734);
+            color: #fff;
+        }
+
+        .stat-icon-empty {
+            background: linear-gradient(135deg, #FF453A, #B51D14);
+            color: #fff;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* شريط البحث والتصفية بنمط iOS Segmented Control */
+        .controls-section {
+            padding: 0 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ios-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .ios-search-box input {
+            width: 100%;
+            background: rgba(28, 31, 41, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            padding: 11px 40px 11px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .ios-search-box input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        .ios-search-box input::placeholder {
+            color: #6B7280;
+        }
+
+        .ios-search-icon {
+            position: absolute;
+            right: 13px;
+            color: #6B7280;
+            pointer-events: none;
+        }
+
+        .ios-segmented-control {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: rgba(24, 27, 36, 0.9);
+            padding: 4px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .segment-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 7px 0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .segment-btn.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(212, 175, 55, 0.12));
+            color: var(--gold-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+        }
+
+        /* قائمة بطاقات الاسطوانات */
+        .cylinders-list {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .cylinder-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            animation: cardAppear 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .cylinder-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gold-gradient);
+            opacity: 0.85;
+        }
+
+        .card-main-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* أيقونة الاسطوانة بتصميم iOS Squircle */
+        .ios-cylinder-icon {
+            width: 54px;
+            height: 54px;
+            min-width: 54px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 
+                0 8px 16px rgba(0, 0, 0, 0.4),
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.35);
+            overflow: hidden;
+        }
+
+        .ios-cylinder-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .ios-cylinder-icon.is-full {
+            background: linear-gradient(145deg, #28CD41 0%, #167A28 100%);
+            border: 1px solid rgba(114, 255, 139, 0.4);
+        }
+
+        .ios-cylinder-icon.is-empty {
+            background: linear-gradient(145deg, #FF3B30 0%, #9E1911 100%);
+            border: 1px solid rgba(255, 138, 128, 0.4);
+        }
+
+        .owner-details {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .owner-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cylinder-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+
+        .count-pill {
+            background: rgba(212, 175, 55, 0.14);
+            border: 1px solid rgba(212, 175, 55, 0.32);
+            color: var(--gold-light);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-badge.full {
+            background: var(--green-bg);
+            color: var(--green-ios);
+            border: 1px solid rgba(48, 209, 88, 0.3);
+        }
+
+        .status-badge.empty {
+            background: var(--red-bg);
+            color: var(--red-ios);
+            border: 1px solid rgba(255, 69, 58, 0.3);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* أزرار التحكم داخل كل بطاقة (مخفية افتراضياً وتظهر فقط في وضع الإدارة) */
+        .card-admin-actions {
+            display: none;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 8px;
+            justify-content: flex-end;
+            animation: fadeIn 0.25s ease;
+        }
+
+        body.admin-mode .card-admin-actions {
+            display: flex;
+        }
+
+        .card-action-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+
+        .card-action-btn:active {
+            transform: scale(0.93);
+        }
+
+        .btn-toggle-status {
+            background: rgba(212, 175, 55, 0.16);
+            color: var(--gold-light);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            margin-left: auto;
+        }
+
+        .btn-edit-card {
+            background: rgba(10, 132, 255, 0.18);
+            color: #64B5F6;
+            border: 1px solid rgba(10, 132, 255, 0.35);
+        }
+
+        .btn-delete-card {
+            background: rgba(255, 69, 58, 0.18);
+            color: #FF8A80;
+            border: 1px solid rgba(255, 69, 58, 0.35);
+        }
+
+        /* زر الإضافة العائم (+) في أقصى الجانب السفلي (مخفي افتراضياً) */
+        .fab-add-btn {
+            display: none;
+            position: fixed;
+            bottom: 26px;
+            left: 24px;
+            width: 62px;
+            height: 62px;
+            border-radius: 20px;
+            background: var(--gold-gradient);
+            color: #090A0F;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 12px 30px rgba(212, 175, 55, 0.45),
+                inset 0 2px 2px rgba(255, 255, 255, 0.65);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 90;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @media (min-width: 481px) {
+            .fab-add-btn {
+                left: calc(50% - 216px);
+            }
+        }
+
+        body.admin-mode .fab-add-btn {
+            display: flex;
+        }
+
+        .fab-add-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* النوافذ المنبثقة بنمط iOS Sheet / Alert */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 200;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .ios-modal {
+            width: 100%;
+            max-width: 390px;
+            background: linear-gradient(165deg, #1C1F2B 0%, #11131A 100%);
+            border: 1px solid rgba(212, 175, 55, 0.38);
+            border-radius: 28px;
+            padding: 24px 20px;
+            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.75);
+            animation: modalScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .modal-icon-top {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: var(--gold-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gold-light);
+        }
+
+        .modal-header p {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .ios-input {
+            width: 100%;
+            background: rgba(10, 12, 16, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .ios-input:focus {
+            border-color: var(--gold-primary);
+        }
+
+        /* حقل الرمز السري المخفي */
+        .pin-input {
+            text-align: center;
+            font-size: 24px;
+            letter-spacing: 10px;
+            font-weight: 800;
+            color: var(--gold-light);
+        }
+
+        /* اختيار الحالة بنمط iOS */
+        .status-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .status-option {
+            padding: 12px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 12, 16, 0.6);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .status-option.selected-full {
+            background: var(--green-bg);
+            border-color: var(--green-ios);
+            color: var(--green-ios);
+        }
+
+        .status-option.selected-empty {
+            background: var(--red-bg);
+            border-color: var(--red-ios);
+            color: var(--red-ios);
+        }
+
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-modal {
+            padding: 12px;
+            border-radius: 14px;
+            border: none;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .btn-modal:active {
+            transform: scale(0.96);
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        .btn-confirm {
+            background: var(--gold-gradient);
+            color: #090A0F;
+            box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35);
+        }
+
+        .error-text {
+            color: var(--red-ios);
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 8px;
+            min-height: 18px;
+        }
+
+        /* حالة القائمة الفارغة */
+        .empty-state {
+            text-align: center;
+            padding: 45px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 54px;
+            height: 54px;
+            color: rgba(212, 175, 55, 0.35);
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
+
+        /* إشعار Toast علوي بنمط iOS Dynamic Island */
+        .ios-toast {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(20, 22, 30, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            color: var(--gold-light);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+
+        .ios-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes cardAppear {
+            from { transform: translateY(14px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes modalScale {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- شريط لوحة التحكم السري (يظهر فقط بعد إدخال الرمز الصحيح) -->
+    <div class="admin-top-bar" id="adminTopBar">
+        <div class="admin-badge">
+            <span class="admin-badge-dot"></span>
+            <span>وضع لوحة التحكم</span>
+        </div>
+        <div class="admin-bar-actions">
+            <button class="btn-admin-small btn-change-pin" onclick="openChangePinModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                تغيير الرمز
+            </button>
+            <button class="btn-admin-small btn-exit-admin" onclick="exitAdminMode()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                خروج
+            </button>
+        </div>
+    </div>
+
+    <!-- الهيدر وشعار التطبيق القابل للنقر 3 مرات -->
+    <header>
+        <div class="brand-section">
+            <div class="ios-app-logo" id="appLogoTrigger" title="شعار التطبيق">
+                <!-- أيقونة اسطوانة غاز ذهبية فاخرة -->
+                <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="goldCyl" x1="6" y1="4" x2="30" y2="34" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#FFF2B2"/>
+                            <stop offset="50%" stop-color="#D4AF37"/>
+                            <stop offset="100%" stop-color="#8F6B14"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- مقبض الحماية العلوي -->
+                    <path d="M13 5.5C13 4.39543 13.8954 3.5 15 3.5H21C22.1046 3.5 23 4.39543 23 5.5V8.5H13V5.5Z" stroke="url(#goldCyl)" stroke-width="2.2"/>
+                    <!-- صمام الغاز -->
+                    <rect x="16.5" y="6" width="3" height="3.5" rx="1" fill="url(#goldCyl)"/>
+                    <!-- جسم الاسطوانة -->
+                    <rect x="9.5" y="9.5" width="17" height="20.5" rx="6.5" fill="url(#goldCyl)" fill-opacity="0.22" stroke="url(#goldCyl)" stroke-width="2.2"/>
+                    <!-- خط المنتصف -->
+                    <line x1="9.8" y1="19.5" x2="26.2" y2="19.5" stroke="url(#goldCyl)" stroke-width="1.6" stroke-dasharray="2 2"/>
+                    <!-- شعلة الغاز في الوسط -->
+                    <path d="M18 13C18 13 21 15.8 21 18.2C21 19.8569 19.6569 21.2 18 21.2C16.3431 21.2 15 19.8569 15 18.2C15 15.8 18 13 18 13Z" fill="url(#goldCyl)"/>
+                    <!-- قاعدة الاسطوانة -->
+                    <path d="M12.5 30.2H23.5V32C23.5 32.5523 23.0523 33 22.5 33H13.5C12.9477 33 12.5 32.5523 12.5 32V30.2Z" fill="url(#goldCyl)"/>
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <h1>محل شمر</h1>
+                <p>راقب اسطوانة الغاز خاصتك عن بعد</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- إحصائيات سريعة بتصميم iOS Widgets -->
+    <section class="stats-grid">
+        <div class="stat-widget gold-accent">
+            <div class="stat-icon-squircle stat-icon-total">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"></path><path d="M9 9V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg>
+            </div>
+            <span class="stat-value" id="totalCount">0</span>
+            <span class="stat-label">إجمالي الاسطوانات</span>
+        </div>
+
+        <div class="stat-widget">
+            <div class="stat-icon-squircle stat-icon-full">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <span class="stat-value" id="fullCount">0</span>
+            <span class="stat-label">معبأة وجاهزة</span>
+        </div>
+
+        <div class="stat-widget">
+            <div class="stat-icon-squircle stat-icon-empty">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <span class="stat-value" id="emptyCount">0</span>
+            <span class="stat-label">فارغة</span>
+        </div>
+    </section>
+
+    <!-- البحث والتصفية -->
+    <section class="controls-section">
+        <div class="ios-search-box">
+            <svg class="ios-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" placeholder="ابحث باسم مالك الاسطوانة..." oninput="renderCylinders()">
+        </div>
+
+        <div class="ios-segmented-control">
+            <button class="segment-btn active" data-filter="all" onclick="setFilter('all', this)">الكل</button>
+            <button class="segment-btn" data-filter="full" onclick="setFilter('full', this)">معبأة</button>
+            <button class="segment-btn" data-filter="empty" onclick="setFilter('empty', this)">فارغة</button>
+        </div>
+    </section>
+
+    <!-- قائمة بطاقات الاسطوانات -->
+    <main class="cylinders-list" id="cylindersList">
+        <!-- يتم توليد البطاقات تلقائياً عبر JavaScript -->
+    </main>
+
+    <!-- زر الزائد العائم في أقصى الجانب السفلي (يظهر فقط داخل لوحة التحكم) -->
+    <button class="fab-add-btn" id="fabAddBtn" onclick="openAddModal()" title="إضافة اسطوانة جديدة">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+</div>
+
+<!-- نافذة إدخال الرمز السري (تظهر عند النقر 3 مرات على الشعار) -->
+<div class="modal-overlay" id="pinModal">
+    <div class="ios-modal">
+        <div class="modal-header">
+            <div class="modal-icon-top">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <h2>الدخول إلى لوحة التحكم</h2>
+            <p>أدخل رمز المرور السري للمتابعة</p>
+        </div>
+        <div class="form-group">
+            <input type="password" inputmode="numeric" maxlength="10" id="pinInputField" class="ios-input pin-input" placeholder="••••" onkeyup="handlePinKeyup(event)">
+            <div class="error-text" id="pinErrorText"></div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn-modal btn-cancel" onclick="closeModal('pinModal')">إلغاء</button>
+            <button class="btn-modal btn-confirm" onclick="verifyPin()">دخول</button>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة إضافة / تعديل اسطوانة -->
+<div class="modal-overlay" id="cylinderFormModal">
+    <div class="ios-modal">
+        <div class="modal-header">
+            <div class="modal-icon-top">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"></path><path d="M9 9V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg>
+            </div>
+            <h2 id="formModalTitle">إضافة اسطوانة جديدة</h2>
+            <p>أدخل بيانات مالك الاسطوانة وحالتها</p>
+        </div>
+
+        <input type="hidden" id="editCylinderId">
+
+        <div class="form-group">
+            <label>اسم مالك الاسطوانة</label>
+            <input type="text" id="ownerNameInput" class="ios-input" placeholder="مثال: أحمد محمد">
+        </div>
+
+        <div class="form-group">
+            <label>عدد الاسطوانات</label>
+            <input type="number" id="cylinderCountInput" class="ios-input" min="1" max="500" value="1">
+        </div>
+
+        <div class="form-group">
+            <label>حالة الاسطوانة</label>
+            <div class="status-selector">
+                <button type="button" class="status-option selected-full" id="optFull" onclick="selectFormStatus('full')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    معبأة
+                </button>
+                <button type="button" class="status-option" id="optEmpty" onclick="selectFormStatus('empty')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    فارغة
+                </button>
+            </div>
+        </div>
+
+        <div class="error-text" id="formErrorText"></div>
+
+        <div class="modal-buttons">
+            <button class="btn-modal btn-cancel" onclick="closeModal('cylinderFormModal')">إلغاء</button>
+            <button class="btn-modal btn-confirm" onclick="saveCylinder()">حفظ البيانات</button>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تغيير الرمز السري -->
+<div class="modal-overlay" id="changePinModal">
+    <div class="ios-modal">
+        <div class="modal-header">
+            <div class="modal-icon-top">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+            </div>
+            <h2>تغيير رمز لوحة التحكم</h2>
+            <p>اختر رمزاً سرياً جديداً لحماية التعديلات</p>
+        </div>
+        <div class="form-group">
+            <label>الرمز السري الجديد</label>
+            <input type="password" inputmode="numeric" maxlength="10" id="newPinInput" class="ios-input pin-input" placeholder="••••">
+        </div>
+        <div class="form-group">
+            <label>تأكيد الرمز الجديد</label>
+            <input type="password" inputmode="numeric" maxlength="10" id="confirmNewPinInput" class="ios-input pin-input" placeholder="••••">
+        </div>
+        <div class="error-text" id="changePinError"></div>
+        <div class="modal-buttons">
+            <button class="btn-modal btn-cancel" onclick="closeModal('changePinModal')">إلغاء</button>
+            <button class="btn-modal btn-confirm" onclick="saveNewPin()">تحديث الرمز</button>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تأكيد الحذف -->
+<div class="modal-overlay" id="deleteConfirmModal">
+    <div class="ios-modal">
+        <div class="modal-header">
+            <div class="modal-icon-top" style="color: var(--red-ios); border-color: rgba(255,69,58,0.4); background: rgba(255,69,58,0.12);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </div>
+            <h2>حذف البطاقة</h2>
+            <p id="deleteConfirmMessage">هل أنت متأكد من حذف بيانات هذه الاسطوانة؟</p>
+        </div>
+        <input type="hidden" id="deleteTargetId">
+        <div class="modal-buttons">
+            <button class="btn-modal btn-cancel" onclick="closeModal('deleteConfirmModal')">تراجع</button>
+            <button class="btn-modal" style="background: var(--red-ios); color: #fff;" onclick="confirmDeleteCylinder()">نعم، احذف</button>
+        </div>
+    </div>
+</div>
+
+<!-- إشعار Toast علوي -->
+<div class="ios-toast" id="iosToast">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span id="toastMessage">تم الحفظ بنجاح</span>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // إعدادات الربط بقاعدة بيانات Firebase Realtime Database
+    const firebaseConfig = {
+        databaseURL: "https://gasshamar-45972-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const cylindersRef = ref(db, 'cylinders');
+    const pinRef = ref(db, 'adminPin');
+
+    // مفاتيح التخزين المحلي الاحتياطي
+    const STORAGE_KEY_DATA = 'royal_gas_cylinders_v1';
+    const STORAGE_KEY_PIN = 'royal_gas_admin_pin_v1';
+
+    // الرمز الافتراضي 1999
+    let adminPin = localStorage.getItem(STORAGE_KEY_PIN) || '1999';
+    let isAdminMode = false;
+    let currentFilter = 'all';
+    let selectedFormStatus = 'full';
+
+    // بيانات افتراضية أولية لإظهار جمالية التطبيق عند الفتح لأول مرة
+    const defaultCylinders = [
+        { id: 1, owner: 'عبدالله الشمري', count: 2, status: 'full' },
+        { id: 2, owner: 'فيصل العتيبي', count: 1, status: 'empty' },
+        { id: 3, owner: 'سلطان القحطاني', count: 3, status: 'full' }
+    ];
+
+    let cylinders = JSON.parse(localStorage.getItem(STORAGE_KEY_DATA)) || defaultCylinders;
+
+    function saveToStorage() {
+        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(cylinders));
+        set(cylindersRef, cylinders).catch((err) => {
+            console.error('Firebase Save Error:', err);
+            showToast('تعذر المزامنة مع السحابة، تحقق من الاتصال');
+        });
+    }
+
+    // الاستماع اللحظي للبيانات من Firebase
+    onValue(cylindersRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            cylinders = Array.isArray(data) ? data.filter(Boolean) : Object.values(data);
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(cylinders));
+        } else {
+            set(cylindersRef, cylinders);
+        }
+        renderCylinders();
+    }, (error) => {
+        console.error('Firebase Sync Error:', error);
+        renderCylinders();
+    });
+
+    // الاستماع اللحظي للرمز السري من Firebase
+    onValue(pinRef, (snapshot) => {
+        if (snapshot.exists()) {
+            adminPin = String(snapshot.val());
+            localStorage.setItem(STORAGE_KEY_PIN, adminPin);
+        } else {
+            set(pinRef, adminPin);
+        }
+    });
+
+    // نظام النقر 3 مرات على شعار التطبيق لفتح صندوق الرمز السري
+    let logoTapCount = 0;
+    let logoTapTimer = null;
+
+    document.getElementById('appLogoTrigger').addEventListener('click', () => {
+        if (isAdminMode) {
+            showToast('أنت بالفعل داخل لوحة التحكم');
+            return;
+        }
+
+        logoTapCount++;
+        clearTimeout(logoTapTimer);
+
+        if (logoTapCount === 3) {
+            logoTapCount = 0;
+            openPinModal();
+        } else {
+            logoTapTimer = setTimeout(() => {
+                logoTapCount = 0;
+            }, 800);
+        }
+    });
+
+    window.openPinModal = function() {
+        document.getElementById('pinInputField').value = '';
+        document.getElementById('pinErrorText').textContent = '';
+        document.getElementById('pinModal').classList.add('open');
+        setTimeout(() => document.getElementById('pinInputField').focus(), 150);
+    };
+
+    window.handlePinKeyup = function(e) {
+        if (e.key === 'Enter') {
+            verifyPin();
+        }
+    };
+
+    window.verifyPin = function() {
+        const entered = document.getElementById('pinInputField').value.trim();
+        if (entered === adminPin) {
+            isAdminMode = true;
+            document.body.classList.add('admin-mode');
+            document.getElementById('adminTopBar').classList.add('active');
+            closeModal('pinModal');
+            showToast('تم فتح لوحة التحكم بنجاح');
+        } else {
+            document.getElementById('pinErrorText').textContent = 'الرمز السري غير صحيح، حاول مرة أخرى';
+            document.getElementById('pinInputField').value = '';
+            document.getElementById('pinInputField').focus();
+        }
+    };
+
+    window.exitAdminMode = function() {
+        isAdminMode = false;
+        document.body.classList.remove('admin-mode');
+        document.getElementById('adminTopBar').classList.remove('active');
+        showToast('تم الخروج من لوحة التحكم وإخفاء الأزرار');
+    };
+
+    // تغيير الرمز السري
+    window.openChangePinModal = function() {
+        document.getElementById('newPinInput').value = '';
+        document.getElementById('confirmNewPinInput').value = '';
+        document.getElementById('changePinError').textContent = '';
+        document.getElementById('changePinModal').classList.add('open');
+        setTimeout(() => document.getElementById('newPinInput').focus(), 150);
+    };
+
+    window.saveNewPin = function() {
+        const newPin = document.getElementById('newPinInput').value.trim();
+        const confirmPin = document.getElementById('confirmNewPinInput').value.trim();
+        const errorEl = document.getElementById('changePinError');
+
+        if (!newPin || newPin.length < 4) {
+            errorEl.textContent = 'يجب أن يتكون الرمز من 4 أرقام على الأقل';
+            return;
+        }
+        if (newPin !== confirmPin) {
+            errorEl.textContent = 'الرمزان غير متطابقين';
+            return;
+        }
+
+        adminPin = newPin;
+        localStorage.setItem(STORAGE_KEY_PIN, adminPin);
+        set(pinRef, adminPin);
+        closeModal('changePinModal');
+        showToast('تم تغيير رمز لوحة التحكم ومزامنته بنجاح');
+    };
+
+    // التصفية والبحث
+    window.setFilter = function(filter, btnEl) {
+        currentFilter = filter;
+        document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
+        btnEl.classList.add('active');
+        renderCylinders();
+    };
+
+    // تحديث الإحصائيات
+    function updateStats() {
+        let total = 0;
+        let full = 0;
+        let empty = 0;
+
+        cylinders.forEach(item => {
+            const qty = parseInt(item.count) || 0;
+            total += qty;
+            if (item.status === 'full') {
+                full += qty;
+            } else {
+                empty += qty;
+            }
+        });
+
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('fullCount').textContent = full;
+        document.getElementById('emptyCount').textContent = empty;
+    }
+
+    // رسم بطاقات الاسطوانات
+    window.renderCylinders = function() {
+        updateStats();
+        const listEl = document.getElementById('cylindersList');
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+        const filtered = cylinders.filter(item => {
+            const matchesSearch = item.owner.toLowerCase().includes(query);
+            const matchesFilter = currentFilter === 'all' || item.status === currentFilter;
+            return matchesSearch && matchesFilter;
+        });
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = `
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"></path><path d="M9 9V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg>
+                    <h3>لا توجد اسطوانات مطابقة</h3>
+                    <p>يمكنك إضافة اسطوانات جديدة من خلال لوحة التحكم</p>
+                </div>
+            `;
+            return;
+        }
+
+        listEl.innerHTML = filtered.map(item => {
+            const isFull = item.status === 'full';
+            const statusText = isFull ? 'معبأة' : 'فارغة';
+            const toggleBtnText = isFull ? 'تحويل إلى فارغة' : 'تحويل إلى معبأة';
+
+            return `
+                <div class="cylinder-card">
+                    <div class="card-main-row">
+                        <div class="card-left">
+                            <div class="ios-cylinder-icon ${isFull ? 'is-full' : 'is-empty'}">
+                                <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+                                    <path d="M13 6C13 4.89543 13.8954 4 15 4H21C22.1046 4 23 4.89543 23 6V9H13V6Z" stroke="#FFFFFF" stroke-width="2.3"/>
+                                    <rect x="9.5" y="9.5" width="17" height="20" rx="6.5" fill="#FFFFFF" fill-opacity="0.22" stroke="#FFFFFF" stroke-width="2.3"/>
+                                    <path d="M18 13.5C18 13.5 20.8 16.1 20.8 18.3C20.8 19.8464 19.5464 21.1 18 21.1C16.4536 21.1 15.2 19.8464 15.2 18.3C15.2 16.1 18 13.5 18 13.5Z" fill="#FFFFFF"/>
+                                    <path d="M13 30H23V32H13V30Z" fill="#FFFFFF"/>
+                                </svg>
+                            </div>
+                            <div class="owner-details">
+                                <div class="owner-name">${escapeHtml(item.owner)}</div>
+                                <div class="cylinder-meta">
+                                    <span class="count-pill">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"></path><path d="M9 9V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path></svg>
+                                        العدد: ${item.count}
+                                    </span>
+                                    <span class="status-badge ${isFull ? 'full' : 'empty'}">
+                                        <span class="status-dot"></span>
+                                        ${statusText}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أزرار التعديل والحذف وتغيير الحالة (تظهر فقط في وضع لوحة التحكم) -->
+                    <div class="card-admin-actions">
+                        <button class="card-action-btn btn-toggle-status" onclick="quickToggleStatus(${item.id})">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                            ${toggleBtnText}
+                        </button>
+                        <button class="card-action-btn btn-edit-card" onclick="openEditModal(${item.id})">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            تعديل
+                        </button>
+                        <button class="card-action-btn btn-delete-card" onclick="openDeleteModal(${item.id})">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            حذف
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
+    // إضافة اسطوانة جديدة
+    window.openAddModal = function() {
+        if (!isAdminMode) return;
+        document.getElementById('formModalTitle').textContent = 'إضافة اسطوانة جديدة';
+        document.getElementById('editCylinderId').value = '';
+        document.getElementById('ownerNameInput').value = '';
+        document.getElementById('cylinderCountInput').value = 1;
+        document.getElementById('formErrorText').textContent = '';
+        selectFormStatus('full');
+        document.getElementById('cylinderFormModal').classList.add('open');
+        setTimeout(() => document.getElementById('ownerNameInput').focus(), 150);
+    };
+
+    // تعديل بطاقة موجودة
+    window.openEditModal = function(id) {
+        if (!isAdminMode) return;
+        const item = cylinders.find(c => c.id === id);
+        if (!item) return;
+
+        document.getElementById('formModalTitle').textContent = 'تعديل بيانات الاسطوانة';
+        document.getElementById('editCylinderId').value = item.id;
+        document.getElementById('ownerNameInput').value = item.owner;
+        document.getElementById('cylinderCountInput').value = item.count;
+        document.getElementById('formErrorText').textContent = '';
+        selectFormStatus(item.status);
+        document.getElementById('cylinderFormModal').classList.add('open');
+    };
+
+    window.selectFormStatus = function(status) {
+        selectedFormStatus = status;
+        const optFull = document.getElementById('optFull');
+        const optEmpty = document.getElementById('optEmpty');
+
+        optFull.className = 'status-option' + (status === 'full' ? ' selected-full' : '');
+        optEmpty.className = 'status-option' + (status === 'empty' ? ' selected-empty' : '');
+    };
+
+    window.saveCylinder = function() {
+        if (!isAdminMode) return;
+        const editId = document.getElementById('editCylinderId').value;
+        const owner = document.getElementById('ownerNameInput').value.trim();
+        const count = parseInt(document.getElementById('cylinderCountInput').value);
+        const errorEl = document.getElementById('formErrorText');
+
+        if (!owner) {
+            errorEl.textContent = 'يرجى إدخال اسم مالك الاسطوانة';
+            return;
+        }
+        if (!count || count < 1) {
+            errorEl.textContent = 'يرجى إدخال عدد صحيح للاسطوانات (1 أو أكثر)';
+            return;
+        }
+
+        if (editId) {
+            const idx = cylinders.findIndex(c => c.id === parseInt(editId));
+            if (idx !== -1) {
+                cylinders[idx] = {
+                    ...cylinders[idx],
+                    owner,
+                    count,
+                    status: selectedFormStatus
+                };
+                showToast('تم تعديل البيانات ومزامنتها بنجاح');
+            }
+        } else {
+            const newItem = {
+                id: Date.now(),
+                owner,
+                count,
+                status: selectedFormStatus
+            };
+            cylinders.unshift(newItem);
+            showToast('تمت إضافة الاسطوانة ومزامنتها بنجاح');
+        }
+
+        saveToStorage();
+        renderCylinders();
+        closeModal('cylinderFormModal');
+    };
+
+    // تبديل سريع للحالة بين معبأة وفارغة
+    window.quickToggleStatus = function(id) {
+        if (!isAdminMode) return;
+        const idx = cylinders.findIndex(c => c.id === id);
+        if (idx !== -1) {
+            cylinders[idx].status = cylinders[idx].status === 'full' ? 'empty' : 'full';
+            saveToStorage();
+            renderCylinders();
+            showToast(`تم تغيير الحالة إلى ${cylinders[idx].status === 'full' ? 'معبأة' : 'فارغة'}`);
+        }
+    };
+
+    // حذف بطاقة
+    window.openDeleteModal = function(id) {
+        if (!isAdminMode) return;
+        const item = cylinders.find(c => c.id === id);
+        if (!item) return;
+        document.getElementById('deleteTargetId').value = id;
+        document.getElementById('deleteConfirmMessage').textContent = `هل أنت متأكد من حذف اسطوانات "${item.owner}"؟`;
+        document.getElementById('deleteConfirmModal').classList.add('open');
+    };
+
+    window.confirmDeleteCylinder = function() {
+        if (!isAdminMode) return;
+        const id = parseInt(document.getElementById('deleteTargetId').value);
+        cylinders = cylinders.filter(c => c.id !== id);
+        saveToStorage();
+        renderCylinders();
+        closeModal('deleteConfirmModal');
+        showToast('تم حذف البطاقة ومزامنتها بنجاح');
+    };
+
+    window.closeModal = function(modalId) {
+        document.getElementById(modalId).classList.remove('open');
+    };
+
+    // إغلاق النوافذ عند النقر على الخلفية المعتمة
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('open');
+            }
+        });
+    });
+
+    let toastTimeout;
+    function showToast(msg) {
+        const toast = document.getElementById('iosToast');
+        document.getElementById('toastMessage').textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2600);
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // تشغيل العرض الأولي
+    renderCylinders();
+</script>
+</body>
+</html>
